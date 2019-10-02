@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock
 import io
-import student_answers.question_1 as question_1
+import fixed_student_answers.question_1 as question_1
 
 
 class Question1Test(unittest.TestCase):

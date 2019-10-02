@@ -105,7 +105,8 @@ venv.bak/
 
 # Project-Specific ignores
 data/
-student_answers/
+original_student_answers/
+fixed_student_answers/
 
 # Pycharm
 .idea/
