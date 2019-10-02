@@ -1,5 +1,7 @@
 import unittest
 
+from fixed_student_answers import question_4
+
 
 class Question4Test(unittest.TestCase):
     def test_something(self):

@@ -252,8 +252,6 @@ def validate_answers_for_students_emails(students_emails, interactive=False):
                         ))
                     print("Printing said code... :")
                     print(student_answer_python_code)
-        if interactive:
-            input()
 
 
 if __name__ == "__main__":
