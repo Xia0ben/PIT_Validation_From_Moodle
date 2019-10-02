@@ -105,8 +105,8 @@ def validate_answers_for_students_emails(students_emails):
     with open(ABS_PATH_TO_DATA_FILE) as json_file:
         data = json.load(json_file)
         for student_participation in data[0]:
-            # Only validate for given list of students
-            if student_participation[INDEX_TO_MAIL] not in students_emails:
+            # Only validate for given list of students, or validate for all if list is empty
+            if student_participation[INDEX_TO_MAIL] not in students_emails and students_emails:
                 continue
 
             counter = 1
@@ -117,50 +117,50 @@ def validate_answers_for_students_emails(students_emails):
                 abs_path_to_python_answer_file = path.join(
                     CURRENT_FILE_ABS_PATH, RELATIVE_PATH_TO_STUDENT_ANSWERS + "question_" + str(counter) + ".py")
 
-                with open(abs_path_to_python_answer_file, "w") as student_answer_python_file:
-                    # Fix strange space character in original data
-                    student_answer_python_code = student_answer_python_code.replace(u"\u00a0", " ")
+                # Fix strange space character in original data
+                student_answer_python_code = student_answer_python_code.replace(u"\u00a0", " ")
 
-                    # Fix absence of """ if __name__ == "__main__": """ expression before executed code and report it
-                    try:
-                        if not code_has_main(student_answer_python_code):
-                            print(
-                                "Student {first_name} {last_name} forgot 'main' in question {question_number}".format(
-                                    first_name=student_participation[INDEX_TO_FIRST_NAME],
-                                    last_name=student_participation[INDEX_TO_LAST_NAME],
-                                    question_number=counter
-                                ))
-                            print("Fixing their code to allow for proper testing...")
-                            student_answer_python_code = fix_code_to_add_main(student_answer_python_code)
-                            print("...Code fixed !")
-
-                            # Change main "if" statement to a main() function for easier testing
-                            student_answer_python_code = transform_main_to_function(student_answer_python_code)
-
-                            # Write student code into python file
-                            student_answer_python_file.write(student_answer_python_code)
-
-                            # Get and run test module corresponding to question
-                            test_module_name = "verification_tests.question_" + str(counter) + "_test"
-
-                            test_module = importlib.import_module(test_module_name)
-
-                            test_suite = unittest.TestLoader().loadTestsFromModule(test_module)
-                            unittest.TextTestRunner(verbosity=2).run(test_suite)
-
-                            # Increment counter for next question loop
-                            counter += 1
-
-                    except SyntaxError as e:
-                        # If the code was not properly formatted and the AST could not be built...
+                # Fix absence of """ if __name__ == "__main__": """ expression before executed code and report it
+                try:
+                    if not code_has_main(student_answer_python_code):
                         print(
-                            "Student {first_name} {last_name} wrote uninterpretable code for question {question_number}".format(
+                            "Student {first_name} {last_name} forgot 'main' in question {question_number}".format(
                                 first_name=student_participation[INDEX_TO_FIRST_NAME],
                                 last_name=student_participation[INDEX_TO_LAST_NAME],
                                 question_number=counter
                             ))
-                        print("Printing said code... :")
-                        print(student_answer_python_code)
+                        print("Fixing their code to allow for proper testing...")
+                        student_answer_python_code = fix_code_to_add_main(student_answer_python_code)
+                        print("...Code fixed !")
+
+                        # Change main "if" statement to a main() function for easier testing
+                        student_answer_python_code = transform_main_to_function(student_answer_python_code)
+
+                        # Write student code into python file
+                        with open(abs_path_to_python_answer_file, "w") as student_answer_python_file:
+                            student_answer_python_file.write(student_answer_python_code)
+
+                        # Get and run test module corresponding to question
+                        test_module_name = "verification_tests.question_" + str(counter) + "_test"
+
+                        test_module = importlib.import_module(test_module_name)
+
+                        test_suite = unittest.TestLoader().loadTestsFromModule(test_module)
+                        unittest.TextTestRunner(verbosity=2).run(test_suite)
+
+                        # Increment counter for next question loop
+                        counter += 1
+
+                except SyntaxError as e:
+                    # If the code was not properly formatted and the AST could not be built...
+                    print(
+                        "Student {first_name} {last_name} wrote uninterpretable code for question {question_number}".format(
+                            first_name=student_participation[INDEX_TO_FIRST_NAME],
+                            last_name=student_participation[INDEX_TO_LAST_NAME],
+                            question_number=counter
+                        ))
+                    print("Printing said code... :")
+                    print(student_answer_python_code)
 
 
 if __name__ == "__main__":
