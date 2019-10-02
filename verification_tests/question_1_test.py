@@ -1,18 +1,37 @@
 import unittest
+import unittest.mock
+import io
 import student_answers.question_1 as question_1
 
 
 class Question1Test(unittest.TestCase):
     STUDENT_CODE_FILE_PATH = "../student_answers/question_1.py"
 
+    def find_student_factorial(self):
+        for name in dir(question_1):
+            if name.startswith("fact"):
+                return getattr(question_1, name)
+        raise NameError("Factorial not found")
+
     def test_factorielle(self):
         from math import factorial
 
-        for i in range(100):
-            try:
-                self.assertEqual(factorial(i), question_1.factorielle(i))
-            except NameError as e:
-                print("ERROR : STUDENT DID NOT DEFINE FACTORIELLE FUNCTION !")
+        try:
+            factorielle = self.find_student_factorial()
+            for i in range(100):
+                self.assertEqual(factorial(i), factorielle(i))
+        except NameError as e:
+            print("ERROR : STUDENT DID NOT DEFINE FACTORIELLE FUNCTION !")
+
+    def test_main(self):
+        outmock = io.StringIO
+        with unittest.mock.patch("builtins.input", side_effect=(str(i) for i in range(100))):
+            with unittest.mock.patch("sys.stdout", new=outmock):
+                for i in range(100):
+                    question_1.main()
+            outmock.seek(0)
+            print(outmock.read())
+
 
 
     # def test_main(self):
