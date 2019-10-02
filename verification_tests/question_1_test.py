@@ -31,8 +31,8 @@ class Question1Test(unittest.TestCase):
                 for i in range(10,100):
                     question_1.main()
         outmock.seek(0)
-        pat = re.compile(r"""[+-]?\d*(\.\d*)?""")
-        for i,line in enumerate(outmock):
+        pat = re.compile(r"""\d+(\.\d+)?""")
+        for line in outmock:
             res = pat.search(line)
             self.assertAlmostEqual(float(res.group(0)), math.e, 5)
 
