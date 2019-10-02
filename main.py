@@ -1,6 +1,7 @@
 import json
 import os
 from os import path
+import shutil
 import unittest
 import importlib
 import ast
@@ -173,16 +174,20 @@ def validate_answers_for_students_emails(students_emails, interactive=False):
                     )
                   + "---------------------------------------------------------------------------\n")
             # Empty student answers folders
-            a = ABS_PATH_TO_ORIGINAL_STUDENT_ANSWERS
-            files = os.listdir(ABS_PATH_TO_ORIGINAL_STUDENT_ANSWERS)
-            for file in files:
-                os.remove(os.path.join(ABS_PATH_TO_ORIGINAL_STUDENT_ANSWERS, file))
+            for entry in os.scandir(ABS_PATH_TO_ORIGINAL_STUDENT_ANSWERS):
+                if entry.is_file():
+                    os.remove(entry.path)
+                elif entry.is_dir():
+                    shutil.rmtree(entry.path)
 
-            for file in os.listdir(ABS_PATH_TO_FIXED_STUDENT_ANSWERS):
-                os.remove(os.path.join(ABS_PATH_TO_FIXED_STUDENT_ANSWERS, file))
+            for entry in os.scandir(ABS_PATH_TO_FIXED_STUDENT_ANSWERS):
+                if entry.is_file():
+                    os.remove(entry.path)
+                elif entry.is_dir():
+                    shutil.rmtree(entry.path)
 
             # Only validate for given list of students, or validate for all if list is empty
-            if student_participation[INDEX_TO_MAIL] not in students_emails and students_emails:
+            if students_emails and student_participation[INDEX_TO_MAIL] not in students_emails:
                 continue
 
             counter = 1
