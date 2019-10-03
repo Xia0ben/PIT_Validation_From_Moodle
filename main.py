@@ -167,13 +167,11 @@ def validate_answers_for_students_emails(students_emails, interactive=False):
     with open(ABS_PATH_TO_DATA_FILE) as json_file:
         data = json.load(json_file)
         for student_participation in data[0]:
-            print("\n---------------------------------------------------------------------------"
-                  + "\nPrinting validation results for student {first_name} {last_name}\n".format(
-                    first_name=student_participation[INDEX_TO_FIRST_NAME],
-                    last_name=student_participation[INDEX_TO_LAST_NAME],
-                    )
-                  + "---------------------------------------------------------------------------\n")
-            # Empty student answers folders
+            # Only validate for given list of students, or validate for all if list is empty
+            if students_emails and student_participation[INDEX_TO_MAIL] not in students_emails:
+                continue
+
+            # CLEANUP Empty student answers folders
             for entry in os.scandir(ABS_PATH_TO_ORIGINAL_STUDENT_ANSWERS):
                 if entry.is_file():
                     os.remove(entry.path)
@@ -186,9 +184,15 @@ def validate_answers_for_students_emails(students_emails, interactive=False):
                 elif entry.is_dir():
                     shutil.rmtree(entry.path)
 
-            # Only validate for given list of students, or validate for all if list is empty
-            if students_emails and student_participation[INDEX_TO_MAIL] not in students_emails:
-                continue
+            if path.isfile("premierspremiers.txt"):
+                os.remove("premierspremiers.txt")
+
+            print("\n---------------------------------------------------------------------------"
+                  + "\nPrinting validation results for student {first_name} {last_name}\n".format(
+                    first_name=student_participation[INDEX_TO_FIRST_NAME],
+                    last_name=student_participation[INDEX_TO_LAST_NAME],
+                    )
+                  + "---------------------------------------------------------------------------\n")
 
             counter = 1
             for i in range(INDEX_TO_FIRST_ANSWER, INDEX_TO_LAST_ANSWER + 1):

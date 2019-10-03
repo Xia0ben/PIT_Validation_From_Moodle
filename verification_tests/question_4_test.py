@@ -70,16 +70,16 @@ class Question4Test(unittest.TestCase):
             question_4.main()
         with open("premierspremiers.txt", 'r') as f:
             content = f.read()
-        self.assertEqual([int(field) for field in re.split(r"\D", content)],
+        self.assertEqual([int(field) for field in re.split(r"\D+", content) if field],
                 self.FIRST_PRIMES)
 
-    def test_main_out(self):
+    def test_print_sum_primes(self):
         outmock = io.StringIO()
         with unittest.mock.patch("sys.stdout", outmock):
             question_4.main()
         outmock.seek(0)
-        out = [int(field) for field in re.split(r"\D", outmock.read()) if field]
-        self.assertEqual(out[-1000:], self.FIRST_PRIMES)
+        out = [int(field) for field in re.split(r"\D+", outmock.read()) if field]
+        self.assertEqual(out[-1], sum(self.FIRST_PRIMES))
 
 
 if __name__ == '__main__':
